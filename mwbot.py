@@ -1,12 +1,24 @@
-import myChatAPI as mca
 import streamlit as st
-
-# Import API Key ------------------------------------------------------------
-import os
-import apikey
-os.environ["OPENAI_API_KEY"] = apikey.apikey_personal
+import openai
 
 # Initialize ------------------------------------------------------------
+openai_client = openai.OpenAI()
+
+# Functions --------------------------------------------------------
+def search_llm(question, history = [], systemPrompt = "", results = []):
+    # Transform results to LLM format
+    init_prompt = [{"role": "system", "content": systemPrompt.replace('\n', ' ').replace('\t', ' ').replace('  ', ' ')}]
+    if results:
+        results_pool = "".join(results['documents'][0])
+        results = [{"role": "system", "content": results_pool}]
+    response = openai_client.chat.completions.create(
+        model="gpt-3.5-turbo-1106",
+        temperature=0,
+        #Achtung: RAG umfasst nur die Ergebnisse der letzen Frage
+        messages=init_prompt + results + history + [{"role": "user", "content": question}]
+    )
+    return response.choices[0].message.content
+
 if "auswahl" not in st.session_state:
     st.session_state["auswahl"] = "Oper"
     st.session_state["question"] = ""
@@ -43,5 +55,5 @@ canvas = st.container()
 if question != st.session_state["question"]:
     st.session_state["question"] = question
     with st.spinner("Erstelle die Zusammfassung..."):
-        answer = mca.search_llm(question, [], start_instructions[st.session_state["auswahl"]]["Prompt"])
+        answer = search_llm(question, [], start_instructions[st.session_state["auswahl"]]["Prompt"])
     canvas.markdown(answer)
