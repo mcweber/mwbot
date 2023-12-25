@@ -2,7 +2,7 @@ import streamlit as st
 import openai
 
 # Initialize ------------------------------------------------------------
-openai_client = openai.OpenAI()
+openai_client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY")
 
 # Functions --------------------------------------------------------
 def search_llm(question, history = [], systemPrompt = "", results = []):
