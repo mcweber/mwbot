@@ -12,8 +12,9 @@ def search_llm(question, history = [], systemPrompt = "", results = []):
         results_pool = "".join(results['documents'][0])
         results = [{"role": "system", "content": results_pool}]
     response = openai_client.chat.completions.create(
-        model="gpt-3.5-turbo-1106",
-        temperature=0,
+        model="gpt-4",
+        # model="gpt-3.5-turbo-1106",
+        temperature=0.1,
         #Achtung: RAG umfasst nur die Ergebnisse der letzen Frage
         messages=init_prompt + results + history + [{"role": "user", "content": question}]
     )
